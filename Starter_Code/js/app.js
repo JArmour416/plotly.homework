@@ -4,7 +4,7 @@ d3.json("samples.json").then((importedData) => {
     console.log(importedData);
 });
 
-// Use d3.json to fetch a sample
+// Use slice() to Grab the Top 10 samples
 d3.json("samples.json").then(function(data) {
     console.log(data.samples[0].otu_ids.slice(0, 10));
     console.log(data.samples[0].sample_values.slice(0, 10));
@@ -12,23 +12,21 @@ d3.json("samples.json").then(function(data) {
 
     // Populate dropdown list with sample IDs
     var selDataset = d3.select("#selDataset")
-
     selDataset.selectAll("option")
         .data(data.names)
         .enter().append("option")
-        .attr("value", function(d) {
-            return d;})
-        .text(function(d) {
-            return d;})
+        .attr("value", function(d){return d;})
+        .text(function(d){return d;})
     
     populateDemographicInfo(data, 0);
     plotBarGraph(data, 0);
     plotBubbleGraph(data, 0);
     plotGaugeGraph(data, 0);
-
-
-
 })
+
+//--------------------------------------------------------
+// Use d3 to select the panel with ID of `#sample-metadata
+//--------------------------------------------------------
 
 function optionChanged(id) {
     var sampleMetadata = d3.select("#sample-metadata");
@@ -37,8 +35,17 @@ function optionChanged(id) {
         console.log(data.names);
         var index = data.names.indexOf(id);
         console.log(index);
+
+        populateDemographicInfo(data, index);
+        plotBarGraph(data, index);
+        plotBubbleGraph(data, index);
+        plotGaugeGraph(data, index);
     })
 }
+
+//--------------------------------------------------
+// Populate Demographic info for test Subject
+//---------------------------------------------------
 
 function populateDemographicInfo(data, index){
     var sampleMetadata = d3.select("#sample-metadata");
@@ -46,7 +53,10 @@ function populateDemographicInfo(data, index){
 
     console.log(filteredData);
 
-    sampleMetadata.html("");
+        //----------------------
+        //clear existing data
+        //----------------------
+        sampleMetadata.html("");
 
     sampleMetadata.append("ul").html(`<b>id:</b> ${filteredData.id}`);
     sampleMetadata.append("ul").html(`<b>ethnicity:</b> ${filteredData.ethnicity}`);
@@ -56,6 +66,10 @@ function populateDemographicInfo(data, index){
     sampleMetadata.append("ul").html(`<b>bbtype:</b> ${filteredData.bbtype}`);
     sampleMetadata.append("ul").html(`<b>wfreq:</b> ${filteredData.wfreq}`);
 }
+//--------------------------------------------------
+// Build Bar graph for 10 samples
+//---------------------------------------------------
+
 function plotBarGraph(data, index) {
     var otu_ids = data.samples[index].otu_ids.slice(0,10).map(id => `OTU ID ${id}`);
     var sample_values = data.samples[index].sample_values.slice(0,10);
@@ -80,7 +94,7 @@ function plotBarGraph(data, index) {
     var layout = {
         width: 500,
         height: 500,
-        title: "Top 10 OTU samples",
+        title: "10 OTU samples",
         xaxis: {title: "Sample Values"},
         yaxis: {autorange: "reversed"}
     };
@@ -88,6 +102,9 @@ function plotBarGraph(data, index) {
     Plotly.newPlot("bar", data, layout);
 }
 
+// ----------------------------------------------------
+// BUILD Bubble graph fo OTU samples
+//-----------------------------------------------------
 function plotBubbleGraph(data, index) {
     var otu_ids = data.samples[index].otu_ids;
     var sample_values = data.samples[index].sample_values;
@@ -116,6 +133,9 @@ function plotBubbleGraph(data, index) {
     Plotly.newPlot('bubble', data, layout);
 }
 
+//--------------------------------------------------
+// Build Gauge graph for wash frequency number wfreq
+//---------------------------------------------------
 function plotGaugeGraph(data, index) {
     var scrubs_per_week = data.metadata[index].wfreq;
     
@@ -140,10 +160,8 @@ function plotGaugeGraph(data, index) {
                   { range: [4, 5], color: "rgba(110, 154, 22, .5)" },
                   { range: [5, 6], color: "rgba(90, 150, 15, .5)" },
                   { range: [6, 7], color: "rgba(50, 127, 10, .5)" },
-                  //{ range: [7, 8], color: "rgba(14, 127, 5, .5)" },
-                  //{ range: [8, 9], color: "rgba(5, 100, 0, .5" }
-                  { range: [7, 8], color: "green" },
-                  { range: [8, 9], color: "darkgreen" }
+                  { range: [7, 8], color: "rgba(14, 127, 5, .5)" },
+                  { range: [8, 9], color: "rgba(5, 100, 0, .5" }
                 ]
             }
         }
@@ -153,3 +171,5 @@ function plotGaugeGraph(data, index) {
 
     Plotly.newPlot('gauge', data, layout);
 }
+
+
